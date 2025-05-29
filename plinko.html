@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plinko</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+    }
+    
+    .header {
+      background-color: #1e1e1e;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header h1 {
+      margin: 0;
+      color: #ffd700;
+    }
+    
+    .nav {
+      display: flex;
+      justify-content: center;
+      background-color: #2a2a2a;
+      padding: 0.5rem;
+    }
+    
+    .nav-item {
+      margin: 0 1rem;
+      padding: 0.5rem 1rem;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    
+    .nav-item:hover {
+      background-color: #3a3a3a;
+    }
+    
+    .nav-item.active {
+      background-color: #ffd700;
+      color: #121212;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    
+    .game-area {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #333;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .bet-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .bet-input {
+      background-color: #333;
+      border: none;
+      color: #fff;
+      padding: 0.5rem;
+      border-radius: 4px;
+      width: 100px;
+      text-align: center;
+    }
+    
+    .bet-button {
+      background-color: #ffd700;
+      color: #121212;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    
+    .bet-button:hover {
+      background-color: #ffcd00;
+    }
+    
+    .bet-button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+    
+    .plinko-board {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      background-color: #121212;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .peg {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background-color: #757575;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 3px #757575;
+      border: 1px solid #8a8a8a;
+    }
+    
+    .ball {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background-color: #ffd700;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      box-shadow: 0 0 5px #ffd700;
+    }
+    
+    .bucket {
+      position: absolute;
+      bottom: 0;
+      height: 50px;
+      background-color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      font-weight: bold;
+      border-top: 2px solid #444;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .bucket:nth-child(odd) {
+      background-color: #272727;
+    }
+    
+    .bucket.selected {
+      border: 2px solid #ffd700;
+    }
+    
+    .multiplier-display {
+      margin-top: 1rem;
+      text-align: center;
+      padding: 1rem;
+      background-color: #333;
+      border-radius: 4px;
+      font-size: 1.2rem;
+    }
+    
+    .balance {
+      text-align: right;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .balance-value {
+      color: #ffd700;
+      font-weight: bold;
+    }
+    
+    .nav-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #333;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    
+    .nav-button:hover {
+      background-color: #444;
+    }
+    
+    .bet-buckets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .bucket-bet {
+      display: flex;
+      align-items: center;
+      background-color: #2a2a2a;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .bucket-bet-input {
+      width: 60px;
+      background-color: #333;
+      border: none;
+      color: #fff;
+      padding: 3px;
+      border-radius: 3px;
+      text-align: center;
+      margin-left: 5px;
+    }
+    
+    .balls-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+    #allin-button {
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      background-color: #fc030f;
+      color: #121212;
+      #allin-buttonn:hover {
+      background-color: #a30a11;
+    }
+    
+    #allin-button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+    }
+  </style>
+</head>
+<body>
+   <a href="index.html" class="nav-button">← Back to Home</a>
+  <div class="header">
+    <h1>Plinko</h1>
+  </div>
+  
+  <div class="container">
+    <div class="balance">
+      Balance: <span class="balance-value" id="balance">1000.00</span>
+    </div>
+    
+    <div class="game-area">
+      <div class="controls">
+        <div class="bet-controls">
+          <label for="total-bet">Total Bet:</label>
+          <input type="number" id="total-bet" class="bet-input" value="10" min="1" max="1000">
+          
+          <div class="balls-control">
+            <label for="ball-count">Balls:</label>
+            <input type="number" id="ball-count" class="bet-input" value="1" min="1" max="10" style="width: 60px;">
+          </div>
+        </div>
+        <button id="drop-button" class="bet-button">DROP BALLS</button>
+      </div>
+      
+      <div id="bucket-bets" class="bet-buckets"></div>
+      
+      <div class="plinko-board" id="plinko-board"></div>
+      
+      <div class="multiplier-display" id="result-display">
+        Drop balls to play! Click on buckets to place specific bets.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get DOM elements
+      const plinkoBoard = document.getElementById('plinko-board');
+      const dropButton = document.getElementById('drop-button');
+      const totalBetInput = document.getElementById('total-bet');
+      const ballCountInput = document.getElementById('ball-count');
+      const resultDisplay = document.getElementById('result-display');
+      const balanceDisplay = document.getElementById('balance');
+      const bucketBetsContainer = document.getElementById('bucket-bets');
+      
+      // Game variables
+      let balance = 1000;
+      let isAnimating = false;
+      let activeBalls = 0;
+      let totalWinnings = 0;
+      let selectedBuckets = new Set();
+      
+      // Initialize board dimensions
+      let boardWidth = plinkoBoard.clientWidth;
+      let boardHeight = plinkoBoard.clientHeight;
+      
+      // Board configuration - taller pyramid
+      const rows = 12; // Increased row count for taller pyramid
+      const bucketCount = 13; // Odd number to make a proper pyramid
+      
+      // Peg and ball dimensions
+      const pegRadius = 6;
+      const ballRadius = 8;
+      
+      // Store peg positions to avoid recalculating
+      let pegPositions = [];
+      
+      // Calculate spacing
+      let pegSpacingY = (boardHeight - 100) / (rows + 1);
+      
+      // Multipliers for each bucket (from left to right) - higher on edges
+      const multipliers = [10, 5, 2, 1, 0.5, 0.3, 0.2, 0.3, 0.5, 1, 2, 5, 10];
+      
+      // Bucket bet amounts
+      let bucketBets = new Array(bucketCount).fill(0);
+      
+      //go all in 
+      // Create pegs and set up board
+      function setupBoard() {
+        // Clear any existing elements and peg positions
+        plinkoBoard.innerHTML = '';
+        pegPositions = [];
+        
+        // Reset dimensions
+        boardWidth = plinkoBoard.clientWidth;
+        boardHeight = plinkoBoard.clientHeight;
+        
+        // Recalculate spacing
+        pegSpacingY = (boardHeight - 100) / (rows + 1);
+        
+        // Create a pyramid layout
+        for (let row = 0; row < rows; row++) {
+          // Calculate how many pegs for this row based on pyramid structure
+          const pegsInThisRow = row + 1;
+          
+          // Calculate horizontal spacing based on the number of pegs in this row
+          const pegSpacingX = boardWidth / (pegsInThisRow + 1);
+          
+          // Center pegs within the board
+          const rowStartX = pegSpacingX;
+          
+          for (let i = 0; i < pegsInThisRow; i++) {
+            const peg = document.createElement('div');
+            peg.className = 'peg';
+            
+            const pegX = rowStartX + i * pegSpacingX;
+            const pegY = (row + 1) * pegSpacingY;
+            
+            peg.style.left = `${pegX}px`;
+            peg.style.top = `${pegY}px`;
+            plinkoBoard.appendChild(peg);
+            
+            // Store peg position for collision detection
+            pegPositions.push({ x: pegX, y: pegY });
+          }
+        }
+        
+        // Calculate bucket width
+        const bucketWidth = boardWidth / bucketCount;
+        
+        // Create buckets at the bottom
+        for (let i = 0; i < bucketCount; i++) {
+          const bucket = document.createElement('div');
+          bucket.className = 'bucket';
+          bucket.dataset.index = i;
+          bucket.style.width = `${bucketWidth}px`;
+          bucket.style.left = `${i * bucketWidth}px`;
+          bucket.textContent = `${multipliers[i]}x`;
+          bucket.style.color = getColorForMultiplier(multipliers[i]);
+          
+          // Add click event to select bucket for betting
+          bucket.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            if (selectedBuckets.has(index)) {
+              selectedBuckets.delete(index);
+              this.classList.remove('selected');
+            } else {
+              selectedBuckets.add(index);
+              this.classList.add('selected');
+            }
+            updateBucketBetsDisplay();
+          });
+          
+          plinkoBoard.appendChild(bucket);
+        }
+        
+        // Clear and recreate bucket bets display
+        updateBucketBetsDisplay();
+      }
+      
+      // Update the bucket bets display
+      function updateBucketBetsDisplay() {
+        bucketBetsContainer.innerHTML = '';
+        
+        if (selectedBuckets.size === 0) {
+          return;
+        }
+        
+        // Create input for each selected bucket
+        selectedBuckets.forEach(index => {
+          const div = document.createElement('div');
+          div.className = 'bucket-bet';
+          div.innerHTML = `
+            <span>${multipliers[index]}x:</span>
+            <input type="number" class="bucket-bet-input" data-index="${index}" value="${bucketBets[index]}" min="0">
+          `;
+          bucketBetsContainer.appendChild(div);
+          
+          // Add event listener to input
+          const input = div.querySelector('input');
+          input.addEventListener('change', function() {
+            const betIndex = parseInt(this.dataset.index);
+            bucketBets[betIndex] = parseFloat(this.value) || 0;
+          });
+        });
+      }
+      
+      // Setup initial board
+      setupBoard();
+      
+      // Handle window resize
+      window.addEventListener('resize', function() {
+        if (!isAnimating) {
+          setupBoard();
+        }
+      });
+      
+      // Get color based on multiplier value
+      function getColorForMultiplier(multiplier) {
+        if (multiplier >= 5) return '#ff4d4d';
+        if (multiplier >= 1) return '#ffd700';
+        if (multiplier >= 0.5) return '#4dff4d';
+        return '#ffffff';
+      }
+      
+      // Click event for drop button
+      dropButton.addEventListener('click', function() {
+        if (isAnimating) return;
+        
+        const totalBet = parseFloat(totalBetInput.value);
+        const ballCount = parseInt(ballCountInput.value);
+        
+        if (isNaN(totalBet) || totalBet <= 0 || totalBet > balance) {
+          resultDisplay.textContent = "Invalid total bet amount!";
+          return;
+        }
+        
+        if (isNaN(ballCount) || ballCount < 1 || ballCount > 10) {
+          resultDisplay.textContent = "Ball count must be between 1 and 10!";
+          return;
+        }
+        
+        // Calculate bet per ball
+        const betPerBall = totalBet / ballCount;
+        
+        // Check if any bucket bets are set
+        let bucketBetTotal = 0;
+        bucketBets.forEach(bet => bucketBetTotal += bet);
+        
+        if (bucketBetTotal > 0 && bucketBetTotal > balance) {
+          resultDisplay.textContent = "Total bucket bets exceed your balance!";
+          return;
+        }
+        
+        if (bucketBetTotal > 0) {
+          // Use bucket bets instead of general bet
+          balance -= bucketBetTotal;
+        } else {
+          // Use general bet
+          balance -= totalBet;
+        }
+        
+        balanceDisplay.textContent = balance.toFixed(2);
+        isAnimating = true;
+        activeBalls = ballCount;
+        totalWinnings = 0;
+        
+        // Launch balls with a slight delay between each
+        for (let i = 0; i < ballCount; i++) {
+          setTimeout(() => {
+            if (bucketBetTotal > 0) {
+              // Each ball represents all bucket bets
+              dropBall(bucketBets);
+            } else {
+              // Split bet among balls
+              dropBall(betPerBall);
+            }
+          }, i * 500); // 500ms delay between balls
+        }
+        
+        dropButton.disabled = true;
+        resultDisplay.textContent = `Dropping ${ballCount} balls...`;
+      });
+      
+      // Fix for keeping track of collisions to prevent multiple bounces from same peg
+      function createCollisionTracker() {
+        const collided = new Set();
+        
+        return {
+          hasCollided: function(pegIndex) {
+            return collided.has(pegIndex);
+          },
+          markCollision: function(pegIndex) {
+            collided.add(pegIndex);
+          },
+          clearCollisions: function() {
+            collided.clear();
+          }
+        };
+      }
+      
+      // Drop ball function with enhanced physics
+      function dropBall(betAmount) {
+        // Create ball element
+        const ball = document.createElement('div');
+        ball.className = 'ball';
+        
+        // Position at the top center with slight randomness
+        const startX = boardWidth / 2 + (Math.random() * 10 - 5);
+        let ballX = startX;
+        let ballY = 20;
+        
+        ball.style.left = `${ballX}px`;
+        ball.style.top = `${ballY}px`;
+        plinkoBoard.appendChild(ball);
+        
+        // Physics constants - increased for bouncier balls
+        const gravity = 0.15;
+        const maxSpeed = 6;
+        const damping = 0.85; // Higher damping for bouncier balls
+        
+        // Physics variables
+        let vx = 0;
+        let vy = 0;
+        
+        // Collision tracking
+        const collisionTracker = createCollisionTracker();
+        let lastRowPassed = -1;
+        
+        // Animation function
+        function animate() {
+          // Apply gravity
+          vy += gravity;
+          
+          // Limit max speed
+          vy = Math.min(vy, maxSpeed);
+          
+          // Update position
+          ballX += vx;
+          ballY += vy;
+          
+          // Check which row we're in
+          const currentRow = Math.floor(ballY / pegSpacingY) - 1;
+          
+          // If we've moved to a new row, reset collision tracking
+          if (currentRow > lastRowPassed) {
+            lastRowPassed = currentRow;
+            collisionTracker.clearCollisions();
+          }
+          
+          // Check for collisions with pegs
+          for (let i = 0; i < pegPositions.length; i++) {
+            // Skip if already collided with this peg in the current row
+            if (collisionTracker.hasCollided(i)) continue;
+            
+            const peg = pegPositions[i];
+            const dx = peg.x - ballX;
+            const dy = peg.y - ballY;
+            const distance = Math.sqrt(dx*dx + dy*dy);
+            
+            // If collision detected
+            if (distance < pegRadius + ballRadius) {
+              // Mark as collided
+              collisionTracker.markCollision(i);
+              
+              // Enhanced bounce physics
+              // Determine bounce direction with more randomness
+              const angle = Math.atan2(dy, dx);
+              const bounceStrength = 1.5 + Math.random() * 0.5; // Bouncier
+              
+              // Apply bounce force
+              vx = -Math.cos(angle) * bounceStrength;
+              vy = -Math.sin(angle) * bounceStrength * damping;
+              
+              // Add some spin effect
+              vx += (Math.random() - 0.5) * 0.8;
+              
+              // Visual feedback for collision
+              ball.style.backgroundColor = '#ffaa00';
+              ball.style.boxShadow = '0 0 10px #ffaa00';
+              setTimeout(() => {
+                ball.style.backgroundColor = '#ffd700';
+                ball.style.boxShadow = '0 0 5px #ffd700';
+              }, 50);
+            }
+          }
+          
+          // Boundary checks with bouncy walls
+          if (ballX < ballRadius) {
+            ballX = ballRadius;
+            vx = Math.abs(vx) * damping;
+          } else if (ballX > boardWidth - ballRadius) {
+            ballX = boardWidth - ballRadius;
+            vx = -Math.abs(vx) * damping;
+          }
+          
+          // Update ball position
+          ball.style.left = `${ballX}px`;
+          ball.style.top = `${ballY}px`;
+          
+          // Check if ball reached bottom
+          if (ballY >= boardHeight - ballRadius) {
+            // Determine which bucket the ball landed in
+            const bucketWidth = boardWidth / bucketCount;
+            const bucketIndex = Math.min(Math.floor(ballX / bucketWidth), bucketCount - 1);
+            const multiplier = multipliers[bucketIndex];
+            
+            let winnings = 0;
+            
+            // Handle different bet types
+            if (Array.isArray(betAmount)) {
+              // Bucket bets
+              if (betAmount[bucketIndex] > 0) {
+                winnings = betAmount[bucketIndex] * multiplier;
+              }
+            } else {
+              // Regular bet
+              winnings = betAmount * multiplier;
+            }
+            
+            // Update balance and total winnings
+            balance += winnings;
+            totalWinnings += winnings;
+            balanceDisplay.textContent = balance.toFixed(2);
+            
+            // Flash the bucket
+            const buckets = document.querySelectorAll('.bucket');
+            buckets[bucketIndex].style.backgroundColor = '#ffd700';
+            buckets[bucketIndex].style.color = '#000';
+            setTimeout(() => {
+              buckets[bucketIndex].style.backgroundColor = bucketIndex % 2 === 0 ? '#333' : '#272727';
+              buckets[bucketIndex].style.color = getColorForMultiplier(multipliers[bucketIndex]);
+            }, 500);
+            
+            // Decrement active balls and check if all are done
+            activeBalls--;
+            
+            if (activeBalls === 0) {
+              resultDisplay.innerHTML = `All balls landed! Total winnings: <span style="color:#ffd700;">${totalWinnings.toFixed(2)}</span>`;
+              isAnimating = false;
+              dropButton.disabled = false;
+              
+              // Reset bucket bets after round
+              bucketBets = new Array(bucketCount).fill(0);
+              updateBucketBetsDisplay();
+            }
+            
+            // Remove ball after a delay
+            setTimeout(() => {
+              if (plinkoBoard.contains(ball)) {
+                plinkoBoard.removeChild(ball);
+              }
+            }, 1000);
+            
+            return;
+          }
+          
+          // Continue animation
+          requestAnimationFrame(animate);
+        }
+        
+        // Start animation
+        requestAnimationFrame(animate);
+      }
+    });
+  </script>
+</body>
+</html>
