@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chicken Crosser</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+      margin-bottom: 20px;
+      font-size: 32px;
+    }
+    
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+    
+    .bet-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      align-items: center;
+    }
+    
+    .bet-input {
+      display: flex;
+      align-items: center;
+    }
+    
+    input {
+      padding: 10px;
+      width: 100px;
+      margin-right: 10px;
+      background-color: #333;
+      border: 1px solid #555;
+      color: #e0e0e0;
+      border-radius: 4px;
+    }
+    
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+    
+    #gameWrapper { 
+      position: relative;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    #gameCanvas {
+      background: #004d00;
+      display: block;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .game-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .action-button {
+      padding: 10px 20px;
+      min-width: 100px;
+    }
+    
+    #cashOutBtn {
+      background-color: #ff9800;
+    }
+    
+    #cashOutBtn:hover {
+      background-color: #f57c00;
+    }
+    
+    .message {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 20px;
+      font-weight: bold;
+      min-height: 30px;
+    }
+    
+    .win {
+      color: #4CAF50;
+    }
+    
+    .loss {
+      color: #f44336;
+    }
+    
+    #gameOverGraphic {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      color: #f44336;
+      font-size: 48px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      border-radius: 10px;
+    }
+    
+    #cashOutGraphic {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 100, 0, 0.8);
+      color: #4CAF50;
+      font-size: 48px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      border-radius: 10px;
+    }
+    .home-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+.home-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+  </style>
+</head>
+<body>
+   <a href="index.html" class="home-button">
+        🏠 Home
+    </a>
+  <h1>🐔Chicken Crosser🐔</h1>
+  
+  <div class="game-info">
+    <div class="stat">
+      <div class="stat-value" id="balanceValue">$1000</div>
+      <div>Balance</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="multiplierValue">x1.00</div>
+      <div>Multiplier</div>
+    </div>
+  </div>
+  
+  <div class="bet-controls">
+    <div class="bet-input">
+      <label for="betInput">Bet Amount: $</label>
+      <input type="number" id="betInput" value="100" min="1" max="1000" />
+    </div>
+  </div>
+  
+  <div id="gameWrapper">
+    <canvas id="gameCanvas" width="600" height="720"></canvas>
+    <div id="gameOverGraphic">
+      <div id="gameOverEmoji"></div>
+      <br>GAME OVER
+    </div>
+    <div id="cashOutGraphic">
+      <div>💰</div>
+      <br><span id="cashOutText">CASHED FOR $0</span>
+    </div>
+  </div>
+  
+  <div class="game-actions">
+    <button onclick="startGame()" class="action-button">Play</button>
+    <button onclick="cashOut()" id="cashOutBtn" class="action-button" style="display: none;">Cash Out</button>
+  </div>
+  
+  <div class="message" id="message">Click to cross the road!</div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const betInput = document.getElementById('betInput');
+    const balanceValue = document.getElementById('balanceValue');
+    const multiplierValue = document.getElementById('multiplierValue');
+    const message = document.getElementById('message');
+    const cashOutBtn = document.getElementById('cashOutBtn');
+    const gameOverGraphic = document.getElementById('gameOverGraphic');
+    const cashOutGraphic = document.getElementById('cashOutGraphic');
+    const cashOutText = document.getElementById('cashOutText');
+    const gameOverEmoji = document.getElementById('gameOverEmoji');
+
+    let chicken = { x: 280, y: 680, width: 40, height: 40 };
+    let car = null;
+    let laneCount = 10;
+    let laneHeight = 60;
+    let sidewalkHeight = 60;
+    let balance = 1000;
+    let bet = 100;
+    let currentLane = laneCount - 1;
+    let gameRunning = false;
+    let multiplier = 1;
+    let coins = [];
+    let hitCar = false;
+
+    function startGame() {
+      bet = parseInt(betInput.value);
+      if (isNaN(bet) || bet <= 0 || bet > balance) {
+        alert('Invalid bet amount.');
+        return;
+      }
+      resetGame();
+      gameRunning = true;
+      cashOutBtn.style.display = 'inline-block';
+      message.textContent = 'Click to cross! Be careful of cars!';
+      message.className = 'message';
+      draw();
+    }
+
+    function resetGame() {
+      chicken = { x: 280, y: 680, width: 40, height: 40 };
+      currentLane = laneCount - 1;
+      multiplier = 1.05;
+      coins = Array.from({ length: laneCount }, (_, i) => ({ 
+        x: 290, 
+        y: sidewalkHeight + (laneCount - 1 - i) * laneHeight + 45,
+        collected: false 
+      }));
+      hitCar = false;
+      car = null;
+      gameOverGraphic.style.display = 'none';
+      cashOutGraphic.style.display = 'none';
+      gameOverEmoji.textContent = '';
+      updateUI();
+    }
+
+    function attemptCross() {
+      if (!gameRunning) return;
+
+      const baseChance = 0.25;
+      const chanceIncrement = 0.1;
+      const hitThreshold = baseChance + ((laneCount - 1 - currentLane) * chanceIncrement);
+      const roll = Math.random();
+
+      if (roll < hitThreshold) {
+        hitCar = true;
+        car = { x: canvas.width, y: chicken.y, speed: -12 };
+        animateCar(() => {
+          balance -= bet;
+          gameOver("Hit by a car! -$" + bet, true);
+        });
+        return;
+      }
+
+      const coin = coins.find(c => Math.abs(c.y - chicken.y) < 30 && !c.collected);
+      if (coin) {
+        coin.collected = true;
+        const progressBonus = (laneCount - currentLane) * 0.05;
+        multiplier += 0.15 + progressBonus;
+      } else {
+        const progressBonus = (laneCount - currentLane) * 0.02;
+        multiplier += 0.08 + progressBonus;
+      }
+
+      currentLane--;
+      chicken.y -= laneHeight;
+
+      if (currentLane < 0) {
+        const winnings = Math.round(bet * multiplier);
+        balance += winnings;
+        gameOver("🎉 You made it across! +$" + winnings, false, true);
+        return;
+      }
+
+      updateUI();
+      draw();
+    }
+
+    function updateUI() {
+      balanceValue.textContent = `$${balance}`;
+      multiplierValue.textContent = `x${multiplier.toFixed(2)}`;
+      betInput.max = balance;
+    }
+
+    function cashOut() {
+      if (gameRunning) {
+        const winnings = Math.round(bet * multiplier);
+        balance += winnings;
+        gameRunning = false;
+        cashOutBtn.style.display = 'none';
+        
+        cashOutText.textContent = `CASHED FOR $${winnings}`;
+        cashOutGraphic.style.display = 'flex';
+        message.textContent = `💰 Smart move! You cashed out for $${winnings}`;
+        message.className = 'message win';
+        
+        updateUI();
+        draw();
+      }
+    }
+
+    function gameOver(msg, isHit = false, isWin = false) {
+      message.textContent = msg;
+      message.className = isWin ? 'message win' : 'message loss';
+      gameRunning = false;
+      cashOutBtn.style.display = 'none';
+      
+      if (isHit) {
+        gameOverGraphic.style.display = 'flex';
+        gameOverEmoji.textContent = '🪦🚗';
+      }
+      
+      updateUI();
+      draw();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw starting sidewalk
+      ctx.fillStyle = '#666';
+      ctx.fillRect(0, canvas.height - sidewalkHeight, canvas.width, sidewalkHeight);
+      ctx.fillStyle = '#888';
+      ctx.fillRect(0, canvas.height - sidewalkHeight, canvas.width, 5);
+
+      // Draw road lanes
+      for (let i = 0; i < laneCount; i++) {
+        const laneY = sidewalkHeight + i * laneHeight;
+        ctx.fillStyle = i % 2 === 0 ? '#555' : '#444';
+        ctx.fillRect(0, laneY, canvas.width, laneHeight);
+        ctx.strokeStyle = '#777';
+        ctx.setLineDash([10, 10]);
+        ctx.beginPath();
+        ctx.moveTo(0, laneY + laneHeight / 2);
+        ctx.lineTo(canvas.width, laneY + laneHeight / 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Draw ending sidewalk
+      ctx.fillStyle = '#666';
+      ctx.fillRect(0, 0, canvas.width, sidewalkHeight);
+      ctx.fillStyle = '#888';
+      ctx.fillRect(0, sidewalkHeight - 5, canvas.width, 5);
+
+      // Draw coins
+      for (let coin of coins) {
+        if (!coin.collected) {
+          ctx.font = '24px Arial';
+          ctx.fillText('🪙', coin.x, coin.y);
+        }
+      }
+
+      // Draw chicken or tombstone
+      if (hitCar) {
+        ctx.font = '32px Arial';
+        ctx.fillText('🪦🚗', chicken.x, chicken.y + 32);
+      } else {
+        ctx.font = '32px Arial';
+        ctx.fillText('🐔', chicken.x, chicken.y + 32);
+      }
+
+      // Draw car
+      if (car && !hitCar) {
+        ctx.font = '48px Arial';
+        ctx.fillText('🚗', car.x, car.y + 20);
+      }
+    }
+
+    function animateCar(callback) {
+      function step() {
+        if (!car) return;
+        car.x += car.speed;
+        draw();
+        if ((car.speed < 0 && car.x > chicken.x) || (car.speed > 0 && car.x < chicken.x)) {
+          requestAnimationFrame(step);
+        } else {
+          callback();
+        }
+      }
+      step();
+    }
+
+    canvas.addEventListener('click', attemptCross);
+
+    updateUI();
+    draw();
+  </script>
+</body>
+</html>
