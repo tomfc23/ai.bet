@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mines Betting Game</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+    
+    .bet-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+    }
+    
+    .bet-input {
+      display: flex;
+      align-items: center;
+    }
+    
+    input {
+      padding: 10px;
+      width: 100px;
+      margin-right: 10px;
+      background-color: #333;
+      border: 1px solid #555;
+      color: #e0e0e0;
+      border-radius: 4px;
+    }
+    
+    select {
+      padding: 10px;
+      background-color: #333;
+      border: 1px solid #555;
+      color: #e0e0e0;
+      border-radius: 4px;
+    }
+    
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .cell {
+      aspect-ratio: 1/1;
+      background-color: #2a2a2a;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .cell:hover {
+      background-color: #333;
+    }
+    
+    .cell.revealed {
+      background-color: #4CAF50;
+      color: white;
+    }
+    
+    .cell.mine {
+      background-color: #f44336;
+    }
+    
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .multiplier {
+      color: gold;
+      font-size: 18px;
+    }
+    
+    .history {
+      margin-top: 20px;
+      background-color: #1e1e1e;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    
+    .history h3 {
+      margin-top: 0;
+      color: #4CAF50;
+    }
+    
+    .history-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #333;
+    }
+    
+    .win {
+      color: #4CAF50;
+    }
+    
+    .loss {
+      color: #f44336;
+    }
+    
+    .nav-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #333;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    
+    .nav-button:hover {
+      background-color: #444;
+    }
+    
+    /* Leaderboard Styles */
+    .leaderboard {
+      margin-top: 30px;
+      background-color: #1e1e1e;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    
+    .leaderboard h3 {
+      margin-top: 0;
+      color: #4CAF50;
+      text-align: center;
+    }
+    
+    .leaderboard-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    
+    .leaderboard-section {
+      flex: 1;
+    }
+    
+    .leaderboard-section h4 {
+      color: gold;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 10px;
+      margin-bottom: 5px;
+      background-color: #2a2a2a;
+      border-radius: 4px;
+    }
+    
+    .leaderboard-rank {
+      font-weight: bold;
+      color: gold;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .modal {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      padding: 20px;
+      width: 80%;
+      max-width: 400px;
+    }
+    
+    .modal h3 {
+      color: #4CAF50;
+      margin-top: 0;
+      text-align: center;
+    }
+    
+    .modal p {
+      margin-bottom: 20px;
+    }
+    
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .current-streak {
+      font-weight: bold;
+      color: gold;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="nav-button">← Back to Home</a>
+  <h1>Mines</h1>
+  
+  <div class="game-info">
+    <div class="stat">
+      <div>Your Balance</div>
+      <div class="stat-value" id="balance">1000</div>
+    </div>
+    <div class="stat">
+      <div>Current Bet</div>
+      <div class="stat-value" id="current-bet">0</div>
+    </div>
+    <div class="stat">
+      <div>Potential Win</div>
+      <div class="stat-value" id="potential-win">0</div>
+    </div>
+    <div class="stat">
+      <div>Multiplier</div>
+      <div class="stat-value multiplier" id="multiplier">1.00x</div>
+    </div>
+  </div>
+  
+  <div class="bet-controls">
+    <div class="bet-input">
+      <input type="number" id="bet-amount" min="0" value="50">
+      <select id="mines-count">
+        <option value="1">1 Mine</option>
+        <option value="3" selected>3 Mines</option>
+        <option value="5">5 Mines</option>
+        <option value="10">10 Mines</option>
+      </select>
+    </div>
+    <button id="start-game">Place Bet</button>
+  </div>
+  
+  <div class="grid" id="game-grid">
+    <!-- Grid cells will be generated by JavaScript -->
+  </div>
+  
+  <div class="action-buttons">
+    <button id="cash-out" disabled>Cash Out</button>
+    <button id="new-game" disabled>New Game</button>
+  </div>
+  
+  <div class="game-stats">
+    <div class="stat">
+      <div>Current Win Streak: <span class="current-streak" id="current-streak">0</span></div>
+    </div>
+  </div>
+  
+  <div class="history">
+    <h3>Game History</h3>
+    <div id="history-list"></div>
+  </div>
+  
+  <div class="leaderboard">
+    <h3>Leaderboard</h3>
+    <div class="leaderboard-container">
+      <div class="leaderboard-section">
+        <h4>Top Balances</h4>
+        <div id="balance-leaderboard">
+          <!-- Balance leaderboard items will be inserted here -->
+        </div>
+      </div>
+      <div class="leaderboard-section">
+        <h4>Top Win Streaks</h4>
+        <div id="streak-leaderboard">
+          <!-- Streak leaderboard items will be inserted here -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Name Input Modal -->
+  <div class="modal-overlay" id="name-modal">
+    <div class="modal">
+      <h3>New High Score!</h3>
+      <p id="achievement-text">You've made it to the leaderboard!</p>
+      <div>
+        <input type="text" id="player-name" placeholder="Enter your name" maxlength="20">
+      </div>
+      <div class="modal-actions">
+        <button id="submit-name">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Game state
+    const gameState = {
+      balance: 1000,
+      betAmount: 0,
+      minesCount: 3,
+      grid: [],
+      revealedCount: 0,
+      gameActive: false,
+      minePositions: [],
+      currentMultiplier: 1.0,
+      history: [],
+      maxBalance: 1000,
+      currentWinStreak: 0,
+      maxWinStreak: 0,
+      pendingLeaderboardEntry: null
+    };
+    
+    // Leaderboard data
+    let leaderboardData = {
+      balances: [],
+      streaks: []
+    };
+    
+    // DOM elements
+    const balanceElement = document.getElementById('balance');
+    const currentBetElement = document.getElementById('current-bet');
+    const potentialWinElement = document.getElementById('potential-win');
+    const multiplierElement = document.getElementById('multiplier');
+    const betAmountInput = document.getElementById('bet-amount');
+    const minesCountSelect = document.getElementById('mines-count');
+    const startGameButton = document.getElementById('start-game');
+    const cashOutButton = document.getElementById('cash-out');
+    const newGameButton = document.getElementById('new-game');
+    const gameGridElement = document.getElementById('game-grid');
+    const historyListElement = document.getElementById('history-list');
+    const currentStreakElement = document.getElementById('current-streak');
+    const balanceLeaderboardElement = document.getElementById('balance-leaderboard');
+    const streakLeaderboardElement = document.getElementById('streak-leaderboard');
+    const nameModalElement = document.getElementById('name-modal');
+    const achievementTextElement = document.getElementById('achievement-text');
+    const playerNameInput = document.getElementById('player-name');
+    const submitNameButton = document.getElementById('submit-name');
+    
+    // Initialize the game
+    function initializeGame() {
+      loadLeaderboardData();
+      updateDisplay();
+      updateLeaderboardDisplay();
+      
+      // Event listeners
+      startGameButton.addEventListener('click', startGame);
+      cashOutButton.addEventListener('click', cashOut);
+      newGameButton.addEventListener('click', resetGame);
+      betAmountInput.addEventListener('input', validateBetAmount);
+      submitNameButton.addEventListener('click', submitLeaderboardEntry);
+    }
+    
+    // Load leaderboard data from local storage
+    function loadLeaderboardData() {
+      const storedData = localStorage.getItem('minesLeaderboard');
+      if (storedData) {
+        leaderboardData = JSON.parse(storedData);
+      } else {
+        // Initialize with empty arrays if no data exists
+        leaderboardData = {
+          balances: [],
+          streaks: []
+        };
+        
+        // Save empty leaderboard
+        saveLeaderboardData();
+      }
+    }
+    
+    // Save leaderboard data to local storage
+    function saveLeaderboardData() {
+      localStorage.setItem('minesLeaderboard', JSON.stringify(leaderboardData));
+    }
+    
+    // Validate bet amount
+    function validateBetAmount() {
+      const value = parseInt(betAmountInput.value);
+      if (value <= 0) {
+        betAmountInput.value = 1;
+      } else if (value > gameState.balance) {
+        betAmountInput.value = gameState.balance;
+      }
+    }
+    
+    // Update display with current game state
+    function updateDisplay() {
+      balanceElement.textContent = gameState.balance;
+      currentBetElement.textContent = gameState.betAmount;
+      const potentialWin = Math.floor(gameState.betAmount * gameState.currentMultiplier);
+      potentialWinElement.textContent = potentialWin;
+      multiplierElement.textContent = gameState.currentMultiplier.toFixed(2) + 'x';
+      currentStreakElement.textContent = gameState.currentWinStreak;
+    }
+    
+    // Start a new game
+    function startGame() {
+      gameState.betAmount = parseInt(betAmountInput.value);
+      gameState.minesCount = parseInt(minesCountSelect.value);
+      
+      if (gameState.betAmount > gameState.balance) {
+        alert("You don't have enough balance for this bet!");
+        return;
+      }
+      
+      // Deduct bet from balance
+      gameState.balance -= gameState.betAmount;
+      
+      // Set up game state
+      gameState.gameActive = true;
+      gameState.revealedCount = 0;
+      gameState.currentMultiplier = 1.0;
+      
+      // Generate mine positions
+      const gridSize = 25; // 5x5 grid
+      gameState.minePositions = [];
+      while (gameState.minePositions.length < gameState.minesCount) {
+        const position = Math.floor(Math.random() * gridSize);
+        if (!gameState.minePositions.includes(position)) {
+          gameState.minePositions.push(position);
+        }
+      }
+      
+      // Create grid cells
+      generateGrid();
+      
+      // Update button states
+      startGameButton.disabled = true;
+      cashOutButton.disabled = false;
+      newGameButton.disabled = true;
+      
+      updateDisplay();
+    }
+    
+    // Generate the game grid
+    function generateGrid() {
+      gameGridElement.innerHTML = '';
+      
+      for (let i = 0; i < 25; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.index = i;
+        cell.addEventListener('click', () => revealCell(i));
+        gameGridElement.appendChild(cell);
+      }
+    }
+    
+    // Reveal a cell in the grid
+    function revealCell(index) {
+      if (!gameState.gameActive) return;
+      
+      const cell = gameGridElement.querySelector(`[data-index="${index}"]`);
+      
+      // Check if cell is already revealed
+      if (cell.classList.contains('revealed')) return;
+      
+      // Check if cell contains a mine
+      if (gameState.minePositions.includes(index)) {
+        // Game over - hit a mine
+        cell.classList.add('mine');
+        cell.textContent = '💣';
+        endGame(false);
+      } else {
+        // Safe cell
+        cell.classList.add('revealed');
+        cell.textContent = '✓';
+        gameState.revealedCount++;
+        
+        // Update multiplier based on revealed cells and mine count
+        updateMultiplier();
+        
+        // Check if all safe cells have been revealed
+        if (gameState.revealedCount === 25 - gameState.minesCount) {
+          endGame(true); // Auto cash-out if all safe cells are revealed
+        }
+      }
+      
+      updateDisplay();
+    }
+    
+    // Update multiplier based on game progress
+    function updateMultiplier() {
+      // Calculate multiplier based on probability
+      const totalCells = 25;
+      const safeCells = totalCells - gameState.minesCount;
+      const remainingSafeCells = safeCells - gameState.revealedCount;
+      const remainingCells = totalCells - gameState.revealedCount;
+      
+      // Base formula for fair multiplier with house edge
+      const fairOdds = remainingCells / remainingSafeCells;
+      const houseEdge = 0.05; // 5% house edge
+      gameState.currentMultiplier = (fairOdds * (1 - houseEdge)).toFixed(2);
+      
+      // Ensure minimum multiplier of 1.00
+      if (gameState.currentMultiplier < 1.00) {
+        gameState.currentMultiplier = 1.00;
+      }
+    }
+    
+    // Cash out current winnings
+    function cashOut() {
+      if (!gameState.gameActive) return;
+      
+      const winAmount = Math.floor(gameState.betAmount * gameState.currentMultiplier);
+      gameState.balance += winAmount;
+      
+      // Update max balance
+      if (gameState.balance > gameState.maxBalance) {
+        gameState.maxBalance = gameState.balance;
+      }
+      
+      // Add to history
+      addToHistory({
+        bet: gameState.betAmount,
+        win: winAmount,
+        multiplier: gameState.currentMultiplier,
+        revealedCells: gameState.revealedCount,
+        result: 'win'
+      });
+      
+      // Increment win streak
+      gameState.currentWinStreak++;
+      
+      // Update max win streak
+      if (gameState.currentWinStreak > gameState.maxWinStreak) {
+        gameState.maxWinStreak = gameState.currentWinStreak;
+      }
+      
+      endGame(true);
+      
+      // Check if new balance or streak qualifies for leaderboard
+      checkLeaderboardQualification();
+    }
+    
+    // End the game
+    function endGame(success) {
+      gameState.gameActive = false;
+      
+      // Reveal all mines
+      if (!success) {
+        gameState.minePositions.forEach(position => {
+          const cell = gameGridElement.querySelector(`[data-index="${position}"]`);
+          cell.classList.add('mine');
+          cell.textContent = '💣';
+        });
+        
+        // Reset win streak on loss
+        gameState.currentWinStreak = 0;
+        
+        // Add to history
+        addToHistory({
+          bet: gameState.betAmount,
+          win: 0,
+          multiplier: 0,
+          revealedCells: gameState.revealedCount,
+          result: 'loss'
+        });
+      }
+      
+      // Update button states
+      cashOutButton.disabled = true;
+      newGameButton.disabled = false;
+      
+      updateDisplay();
+    }
+    
+    // Reset the game
+    function resetGame() {
+      gameState.gameActive = false;
+      gameState.betAmount = 0;
+      gameState.revealedCount = 0;
+      gameState.currentMultiplier = 1.0;
+      
+      // Update button states
+      startGameButton.disabled = false;
+      cashOutButton.disabled = true;
+      newGameButton.disabled = true;
+      
+      // Clear grid
+      gameGridElement.innerHTML = '';
+      
+      updateDisplay();
+    }
+    
+    // Add game result to history
+    function addToHistory(result) {
+      gameState.history.unshift(result);
+      
+      // Only keep the last 10 games
+      if (gameState.history.length > 10) {
+        gameState.history.pop();
+      }
+      
+      // Update history display
+      updateHistoryDisplay();
+    }
+    
+    // Update history display
+    function updateHistoryDisplay() {
+      historyListElement.innerHTML = '';
+      
+      if (gameState.history.length === 0) {
+        const emptyItem = document.createElement('div');
+        emptyItem.className = 'history-item';
+        emptyItem.textContent = 'No games played yet';
+        historyListElement.appendChild(emptyItem);
+        return;
+      }
+      
+      gameState.history.forEach(item => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        if (item.result === 'win') {
+          historyItem.innerHTML = `Bet: ${item.bet} | <span class="win">Win: ${item.win}</span> | Multiplier: ${item.multiplier}x | Revealed: ${item.revealedCells}`;
+        } else {
+          historyItem.innerHTML = `Bet: ${item.bet} | <span class="loss">Loss</span> | Revealed: ${item.revealedCells}`;
+        }
+        
+        historyListElement.appendChild(historyItem);
+      });
+    }
+    
+    // Check if current balance or streak qualifies for leaderboard
+    function checkLeaderboardQualification() {
+      let qualifiesForLeaderboard = false;
+      let achievementType = '';
+      
+      // Check if balance qualifies
+      if (gameState.balance > 0) {
+        // Check if there are less than 5 entries or if this balance beats an existing entry
+        if (leaderboardData.balances.length < 5 || gameState.balance > leaderboardData.balances[leaderboardData.balances.length - 1].score) {
+          qualifiesForLeaderboard = true;
+          achievementType = 'balance';
+        }
+      }
+      
+      // Check if streak qualifies (only if the streak is active)
+      if (gameState.currentWinStreak > 0) {
+        // Check if there are less than 5 entries or if this streak beats an existing entry
+        if (leaderboardData.streaks.length < 5 || gameState.currentWinStreak > leaderboardData.streaks[leaderboardData.streaks.length - 1].score) {
+          qualifiesForLeaderboard = true;
+          achievementType = achievementType ? 'both' : 'streak';
+        }
+      }
+      
+      // Show modal if qualified
+      if (qualifiesForLeaderboard) {
+        // Set pending entry type
+        gameState.pendingLeaderboardEntry = achievementType;
+        
+        // Set achievement text
+        if (achievementType === 'balance') {
+          achievementTextElement.textContent = `Congratulations! Your balance of ${gameState.balance} made it to the top 5!`;
+        } else if (achievementType === 'streak') {
+          achievementTextElement.textContent = `Amazing! Your winning streak of ${gameState.currentWinStreak} made it to the top 5!`;
+        } else if (achievementType === 'both') {
+          achievementTextElement.textContent = `Incredible! Both your balance and win streak made it to the top 5!`;
+        }
+        
+        // Show the modal
+        nameModalElement.style.display = 'flex';
+        playerNameInput.focus();
+      }
+    }
+    
+    // Submit name for leaderboard entry
+    function submitLeaderboardEntry() {
+      const playerName = playerNameInput.value.trim() || 'Anonymous';
+      
+      // Add to balance leaderboard if qualified
+      if (gameState.pendingLeaderboardEntry === 'balance' || gameState.pendingLeaderboardEntry === 'both') {
+        addLeaderboardEntry('balances', playerName, gameState.balance);
+      }
+      
+      // Add to streak leaderboard if qualified
+      if (gameState.pendingLeaderboardEntry === 'streak' || gameState.pendingLeaderboardEntry === 'both') {
+        addLeaderboardEntry('streaks', playerName, gameState.currentWinStreak);
+      }
+      
+      // Reset pending entry
+      gameState.pendingLeaderboardEntry = null;
+      
+      // Hide the modal
+      nameModalElement.style.display = 'none';
+      playerNameInput.value = '';
+      
+      // Update leaderboard display
+      updateLeaderboardDisplay();
+    }
+    
+    // Add entry to specified leaderboard
+    function addLeaderboardEntry(leaderboardType, playerName, score) {
+      // Create new entry
+      const newEntry = {
+        name: playerName,
+        score: score,
+        date: new Date().toLocaleDateString()
+      };
+      
+      // Add to leaderboard
+      leaderboardData[leaderboardType].push(newEntry);
+      
+      // Sort leaderboard (descending order by score)
+      leaderboardData[leaderboardType].sort((a, b) => b.score - a.score);
+      
+      // Keep only top 5
+      if (leaderboardData[leaderboardType].length > 5) {
+        leaderboardData[leaderboardType] = leaderboardData[leaderboardType].slice(0, 5);
+      }
+      
+      // Save to local storage
+      saveLeaderboardData();
+    }
+    
+    // Update leaderboard display
+    function updateLeaderboardDisplay() {
+      // Update balance leaderboard
+      balanceLeaderboardElement.innerHTML = '';
+      
+      if (leaderboardData.balances.length === 0) {
+        const emptyItem = document.createElement('div');
+        emptyItem.className = 'leaderboard-item';
+        emptyItem.textContent = 'No high scores yet';
+        balanceLeaderboardElement.appendChild(emptyItem);
+      } else {
+        leaderboardData.balances.forEach((entry, index) => {
+          const leaderboardItem = document.createElement('div');
+          leaderboardItem.className = 'leaderboard-item';
+          leaderboardItem.innerHTML = `
+            <span><span class="leaderboard-rank">#${index + 1}</span> ${entry.name}</span>
+            <span>${entry.score}</span>
+          `;
+          balanceLeaderboardElement.appendChild(leaderboardItem);
+        });
+      }
+      
+      // Update streak leaderboard
+      streakLeaderboardElement.innerHTML = '';
+      
+      if (leaderboardData.streaks.length === 0) {
+        const emptyItem = document.createElement('div');
+        emptyItem.className = 'leaderboard-item';
+        emptyItem.textContent = 'No streaks yet';
+        streakLeaderboardElement.appendChild(emptyItem);
+      } else {
+        leaderboardData.streaks.forEach((entry, index) => {
+          const leaderboardItem = document.createElement('div');
+          leaderboardItem.className = 'leaderboard-item';
+          leaderboardItem.innerHTML = `
+            <span><span class="leaderboard-rank">#${index + 1}</span> ${entry.name}</span>
+            <span>${entry.score}</span>
+          `;
+          streakLeaderboardElement.appendChild(leaderboardItem);
+        });
+      }
+    }
+    
+    // Initialize on load
+    initializeGame();
+  </script>
+</body>
+</html>
