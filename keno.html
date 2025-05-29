@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keno</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .number-grid {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .grid-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .numbers {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .number {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.1);
+            user-select: none;
+        }
+
+        .number:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .number.selected {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333;
+            border-color: #FFD700;
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+        }
+
+        .number.winning {
+            background: linear-gradient(135deg, #ff4757, #c44569);
+            color: white;
+            animation: pulse 0.6s ease-in-out;
+            border-color: #ff4757;
+        }
+
+        .number.winning.matched {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            animation: celebrate 0.8s ease-in-out;
+            transform: scale(1.15);
+            border-color: #00ff88;
+        }
+
+        .control-panel {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            height: fit-content;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .wager-section {
+            margin-bottom: 25px;
+        }
+
+        .wager-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .wager-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .wager-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333;
+            box-shadow: 0 4px 15px rgba(255,215,0,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,215,0,0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .winning-numbers {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .winning-numbers h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .winning-display {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .winning-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .paytable {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .paytable h3 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        .paytable-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .paytable-row:last-child {
+            border-bottom: none;
+        }
+
+        .match-highlight {
+            background: rgba(255,215,0,0.2);
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .result-message {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-win {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: white;
+        }
+
+        .result-lose {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1.15) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(-5deg); }
+            75% { transform: scale(1.2) rotate(5deg); }
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .numbers {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            .number {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+         .home-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 15px;
+      background-color: #405cdd;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      z-index: 100;
+    }
+
+    .home-button:hover {
+      background-color: #374fbd;
+    }
+    </style>
+</head>
+<body>
+  <a href="index.html" class="home-button">🏠 Home</a>
+    <div class="container">
+        <div class="header">
+            <h1>💎KENO💎</h1>
+            <p class="subtitle">Select up to 10 numbers and try your luck!</p>
+        </div>
+
+        <div class="game-area">
+            <div class="number-grid">
+                <h3 class="grid-title">Select Your Numbers (1-40)</h3>
+                <div class="numbers" id="numberGrid"></div>
+            </div>
+
+            <div class="control-panel">
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="selectedCount">0</div>
+                        <div class="stat-label">Selected</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="balance">1000</div>
+                        <div class="stat-label">Balance</div>
+                    </div>
+                </div>
+
+                <div class="wager-section">
+                    <label class="wager-label" for="wager">Wager Amount:</label>
+                    <input type="number" id="wager" class="wager-input">
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-primary" id="playBtn">Play Round</button>
+                    <button class="btn btn-secondary" id="clearBtn">Clear All</button>
+                    <button class="btn btn-secondary" id="quickPickBtn">Quick Pick</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="winning-numbers" id="winningSection" style="display: none;">
+            <h3>Winning Numbers</h3>
+            <div class="winning-display" id="winningNumbers"></div>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="paytable">
+            <h3>Paytable (Multiplier × Wager)</h3>
+            <div class="paytable-row">
+                <span>10 matches</span>
+                <span>100x</span>
+            </div>
+            <div class="paytable-row">
+                <span>9 matches</span>
+                <span>50x</span>
+            </div>
+            <div class="paytable-row">
+                <span>8 matches</span>
+                <span>25x</span>
+            </div>
+            <div class="paytable-row">
+                <span>7 matches</span>
+                <span>10x</span>
+            </div>
+            <div class="paytable-row">
+                <span>6 matches</span>
+                <span>5x</span>
+            </div>
+            <div class="paytable-row">
+                <span>5 matches</span>
+                <span>2x</span>
+            </div>
+            <div class="paytable-row">
+                <span>4 matches</span>
+                <span>1x</span>
+            </div>
+            <div class="paytable-row">
+                <span>0-3 matches</span>
+                <span>0x</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class KenoGame {
+            constructor() {
+                this.selectedNumbers = new Set();
+                this.winningNumbers = new Set();
+                this.balance = 1000;
+                this.currentWager = 10;
+                this.isPlaying = false;
+                this.paytable = {
+                    10: 100, 9: 50, 8: 25, 7: 10, 6: 5, 5: 2, 4: 1
+                };
+                
+                this.initializeGame();
+                this.bindEvents();
+            }
+
+            initializeGame() {
+                this.createNumberGrid();
+                this.updateDisplay();
+            }
+
+            createNumberGrid() {
+                const grid = document.getElementById('numberGrid');
+                grid.innerHTML = '';
+                
+                for (let i = 1; i <= 40; i++) {
+                    const numberEl = document.createElement('div');
+                    numberEl.className = 'number';
+                    numberEl.textContent = i;
+                    numberEl.dataset.number = i;
+                    
+                    numberEl.addEventListener('click', () => this.toggleNumber(i));
+                    grid.appendChild(numberEl);
+                }
+            }
+
+            bindEvents() {
+                document.getElementById('playBtn').addEventListener('click', () => this.playRound());
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearSelection());
+                document.getElementById('quickPickBtn').addEventListener('click', () => this.quickPick());
+                document.getElementById('wager').addEventListener('input', (e) => {
+                    this.currentWager = Math.max(1, Math.min(this.balance, parseInt(e.target.value) || 1));
+                    e.target.value = this.currentWager;
+                });
+            }
+
+            toggleNumber(number) {
+                if (this.isPlaying) return;
+
+                if (this.selectedNumbers.has(number)) {
+                    this.selectedNumbers.delete(number);
+                } else if (this.selectedNumbers.size < 10) {
+                    this.selectedNumbers.add(number);
+                }
+
+                this.updateNumberDisplay();
+                this.updateSelectedCount();
+            }
+
+            updateNumberDisplay() {
+                document.querySelectorAll('.number').forEach(el => {
+                    const num = parseInt(el.dataset.number);
+                    el.className = 'number';
+                    
+                    if (this.selectedNumbers.has(num)) {
+                        el.classList.add('selected');
+                    }
+                    if (this.winningNumbers.has(num)) {
+                        el.classList.add('winning');
+                        if (this.selectedNumbers.has(num)) {
+                            el.classList.add('matched');
+                        }
+                    }
+                });
+            }
+
+            updateSelectedCount() {
+                document.getElementById('selectedCount').textContent = this.selectedNumbers.size;
+            }
+
+            updateBalance() {
+                document.getElementById('balance').textContent = this.balance;
+                const wagerInput = document.getElementById('wager');
+                wagerInput.max = this.balance;
+                if (this.currentWager > this.balance) {
+                    this.currentWager = this.balance;
+                    wagerInput.value = this.currentWager;
+                }
+            }
+
+            updateDisplay() {
+                this.updateSelectedCount();
+                this.updateBalance();
+                this.updateNumberDisplay();
+            }
+
+            clearSelection() {
+                if (this.isPlaying) return;
+                
+                this.selectedNumbers.clear();
+                this.winningNumbers.clear();
+                this.updateDisplay();
+                this.hideResults();
+            }
+
+            quickPick() {
+                if (this.isPlaying) return;
+                
+                this.selectedNumbers.clear();
+                const numbers = Array.from({length: 40}, (_, i) => i + 1);
+                
+                for (let i = 0; i < 10; i++) {
+                    const randomIndex = Math.floor(Math.random() * numbers.length);
+                    this.selectedNumbers.add(numbers.splice(randomIndex, 1)[0]);
+                }
+                
+                this.updateDisplay();
+            }
+
+            async playRound() {
+                if (this.isPlaying || this.selectedNumbers.size === 0) return;
+                if (this.balance < this.currentWager) {
+                    this.showResult('Insufficient balance!', false);
+                    return;
+                }
+
+                this.isPlaying = true;
+                this.balance -= this.currentWager;
+                this.updateBalance();
+                
+                document.getElementById('playBtn').disabled = true;
+                document.getElementById('playBtn').textContent = 'Drawing...';
+
+                // Generate winning numbers
+                this.winningNumbers.clear();
+                const availableNumbers = Array.from({length: 40}, (_, i) => i + 1);
+                
+                for (let i = 0; i < 10; i++) {
+                    const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                    this.winningNumbers.add(availableNumbers.splice(randomIndex, 1)[0]);
+                }
+
+                // Show winning numbers with animation
+                await this.showWinningNumbers();
+                
+                // Calculate matches and payout
+                const matches = this.calculateMatches();
+                const payout = this.calculatePayout(matches);
+                
+                if (payout > 0) {
+                    this.balance += payout;
+                    this.updateBalance();
+                }
+
+                // Show results
+                this.showGameResult(matches, payout);
+                
+                // Update display and reset
+                this.updateNumberDisplay();
+                this.isPlaying = false;
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('playBtn').textContent = 'Play Round';
+            }
+
+            async showWinningNumbers() {
+                const winningSection = document.getElementById('winningSection');
+                const winningDisplay = document.getElementById('winningNumbers');
+                
+                winningDisplay.innerHTML = '';
+                winningSection.style.display = 'block';
+                
+                const sortedWinning = Array.from(this.winningNumbers).sort((a, b) => a - b);
+                
+                for (let i = 0; i < sortedWinning.length; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    
+                    const numberEl = document.createElement('div');
+                    numberEl.className = 'winning-number';
+                    numberEl.textContent = sortedWinning[i];
+                    winningDisplay.appendChild(numberEl);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            calculateMatches() {
+                let matches = 0;
+                this.selectedNumbers.forEach(num => {
+                    if (this.winningNumbers.has(num)) {
+                        matches++;
+                    }
+                });
+                return matches;
+            }
+
+            calculatePayout(matches) {
+                const multiplier = this.paytable[matches] || 0;
+                return multiplier * this.currentWager;
+            }
+
+            showGameResult(matches, payout) {
+                let message = `${matches} matches!`;
+                let isWin = payout > 0;
+                
+                if (payout > 0) {
+                    message += ` You won $${payout}!`;
+                } else {
+                    message += ' Better luck next time!';
+                }
+                
+                this.showResult(message, isWin);
+                this.highlightPaytable(matches);
+            }
+
+            showResult(message, isWin) {
+                const resultEl = document.getElementById('resultMessage');
+                resultEl.textContent = message;
+                resultEl.className = `result-message ${isWin ? 'result-win' : 'result-lose'}`;
+                resultEl.classList.add('show');
+                
+                setTimeout(() => {
+                    resultEl.classList.remove('show');
+                }, 4000);
+            }
+
+            highlightPaytable(matches) {
+                document.querySelectorAll('.paytable-row').forEach((row, index) => {
+                    row.classList.remove('match-highlight');
+                    if ((matches === 10 && index === 0) ||
+                        (matches === 9 && index === 1) ||
+                        (matches === 8 && index === 2) ||
+                        (matches === 7 && index === 3) ||
+                        (matches === 6 && index === 4) ||
+                        (matches === 5 && index === 5) ||
+                        (matches === 4 && index === 6) ||
+                        (matches <= 3 && index === 7)) {
+                        row.classList.add('match-highlight');
+                    }
+                });
+                
+                setTimeout(() => {
+                    document.querySelectorAll('.paytable-row').forEach(row => {
+                        row.classList.remove('match-highlight');
+                    });
+                }, 3000);
+            }
+
+            hideResults() {
+                document.getElementById('winningSection').style.display = 'none';
+                document.getElementById('resultMessage').classList.remove('show');
+            }
+        }
+
+        // Initialize the game when the page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            new KenoGame();
+        });
+    </script>
+</body>
+</html>
