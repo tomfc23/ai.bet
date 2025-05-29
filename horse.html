@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horse Race Betting</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    body.fullscreen {
+      max-width: none;
+      margin: 0;
+      padding: 10px;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+      margin: 10px 0;
+    }
+
+    .home-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      z-index: 100;
+    }
+
+    .home-button:hover {
+      background-color: #419444;
+    }
+
+    .fullscreen-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      background-color: #FF9800;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      z-index: 100;
+    }
+
+    .fullscreen-btn:hover {
+      background-color: #F57C00;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      flex-wrap: wrap;
+    }
+
+    .header-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .balance {
+      font-size: 1.2em;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .info-icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: #2196F3;
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 20px;
+      font-size: 12px;
+      cursor: help;
+      position: relative;
+    }
+
+    .info-icon:hover::after {
+      content: "Choose horse: Select which horse to bet on\ANumber of horses: Set total horses in race";
+      position: absolute;
+      bottom: 25px;
+      left: -150px;
+      width: 300px;
+      background-color: #333;
+      color: #e0e0e0;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: pre-line;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .controls label {
+      margin: 0;
+    }
+
+    input {
+      padding: 8px;
+      width: 60px;
+      background-color: #333;
+      border: 1px solid #555;
+      color: #e0e0e0;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .track {
+      position: relative;
+      width: 100%;
+      margin-bottom: 20px;
+      background: linear-gradient(#004d00, #006600);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      background-image: repeating-linear-gradient(
+        to bottom,
+        #004d00,
+        #004d00 40px,
+        #003b00 40px,
+        #003b00 42px
+      );
+    }
+
+    .horse {
+      position: absolute;
+      font-size: 24px;
+      width: 80px;
+      height: 40px;
+      line-height: 20px;
+      text-align: center;
+      left: 0;
+      transition: left 0.1s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
+
+    .horse span {
+      font-size: 16px;
+      margin-right: 5px;
+    }
+
+    .winner {
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* Fullscreen styles */
+    .fullscreen .track {
+      height: calc(100vh - 200px);
+      max-height: none;
+    }
+
+    .fullscreen .header-row,
+    .fullscreen .controls {
+      margin: 5px 0;
+      padding: 10px;
+    }
+
+    .fullscreen h1 {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="home-button">🏠 Home</a>
+  
+  <h1>Horse Race Betting</h1>
+
+  <div class="header-row">
+    <div class="header-item">
+      <span class="balance" id="balanceDisplay">Balance: $1000</span>
+    </div>
+    <div class="header-item">
+      <label for="betHorse">Choose horse:</label>
+      <input type="number" id="betHorse" min="1" value="1">
+    </div>
+    <div class="header-item">
+      <label for="horseCount">Number of horses:</label>
+      <input type="number" id="horseCount" min="2" max="20" value="3">
+      <span class="info-icon">?</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label for="betAmount">Bet Amount:</label>
+      <input type="number" id="betAmount" min="1" value="100">
+    </div>
+    <button id="startBtn">Start Race</button>
+  </div>
+
+  <div class="track" id="track"></div>
+
+  <div class="winner" id="winnerDisplay"></div>
+
+  <script>
+    let balance = 1000;
+    let isFullscreen = false;
+
+    function updateBalanceDisplay() {
+      document.getElementById("balanceDisplay").textContent = `Balance: $${balance}`;
+    }
+
+    function toggleFullscreen() {
+      isFullscreen = !isFullscreen;
+      if (isFullscreen) {
+        document.body.classList.add('fullscreen');
+      } else {
+        document.body.classList.remove('fullscreen');
+      }
+      
+      // Update track height after toggling fullscreen
+      const horseCount = parseInt(document.getElementById("horseCount").value) || 3;
+      updateTrackHeight(horseCount);
+    }
+
+    function updateTrackHeight(horseCount) {
+      const track = document.getElementById("track");
+      if (isFullscreen) {
+        // In fullscreen, use available height
+        const availableHeight = window.innerHeight - 200; // Account for headers and controls
+        track.style.height = `${Math.max(availableHeight, horseCount * 45 + 20)}px`;
+      } else {
+        // Normal mode: set height based on number of horses
+        track.style.height = `${horseCount * 45 + 20}px`;
+      }
+    }
+
+    function createHorses(count) {
+      const track = document.getElementById("track");
+      track.innerHTML = "";
+      updateTrackHeight(count);
+      
+      const horses = [];
+      for (let i = 0; i < count; i++) {
+        const horse = document.createElement("div");
+        horse.classList.add("horse");
+        horse.id = `horse${i + 1}`;
+        horse.style.top = `${i * 45 + 10}px`;
+        horse.innerHTML = `<span>#${i + 1}</span>🐎`;
+        track.appendChild(horse);
+        horses.push(horse);
+      }
+      return horses;
+    }
+
+    // Update track height when horse count changes
+    document.getElementById("horseCount").addEventListener("input", function() {
+      const horseCount = parseInt(this.value) || 3;
+      updateTrackHeight(horseCount);
+    });
+
+    document.getElementById("startBtn").addEventListener("click", function () {
+      const betHorse = parseInt(document.getElementById("betHorse").value);
+      const betAmount = parseInt(document.getElementById("betAmount").value);
+      const horseCount = parseInt(document.getElementById("horseCount").value);
+
+      if (isNaN(horseCount) || horseCount < 2 || horseCount > 20) {
+        alert("Number of horses must be between 2 and 20.");
+        return;
+      }
+
+      if (isNaN(betHorse) || betHorse < 1 || betHorse > horseCount) {
+        alert(`Please bet on a horse between 1 and ${horseCount}.`);
+        return;
+      }
+      if (isNaN(betAmount) || betAmount < 1 || betAmount > balance) {
+        alert("Invalid bet amount.");
+        return;
+      }
+
+      balance -= betAmount;
+      updateBalanceDisplay();
+
+      document.getElementById("winnerDisplay").textContent = "";
+
+      const horses = createHorses(horseCount);
+      const positions = new Array(horseCount).fill(0);
+      const trackWidth = document.getElementById("track").offsetWidth;
+      const finishLine = trackWidth - 80;
+
+      let raceFinished = false;
+      const interval = setInterval(() => {
+        for (let i = 0; i < horses.length; i++) {
+          if (raceFinished) return;
+
+          const move = Math.random() * 10;
+          positions[i] += move;
+          horses[i].style.left = positions[i] + "px";
+
+          if (positions[i] >= finishLine) {
+            raceFinished = true;
+            clearInterval(interval);
+            const winner = i + 1;
+            document.getElementById("winnerDisplay").textContent = `Horse #${winner} wins!`;
+            if (winner === betHorse) {
+              const winnings = betAmount * (horseCount - 1);
+              alert("You won! You earned $" + winnings);
+              balance += winnings;
+            } else {
+              alert("You lost the bet.");
+            }
+            updateBalanceDisplay();
+          }
+        }
+      }, 100);
+    });
+
+    // Initialize
+    updateBalanceDisplay();
+    updateTrackHeight(3);
+
+    // Handle window resize in fullscreen mode
+    window.addEventListener('resize', function() {
+      if (isFullscreen) {
+        const horseCount = parseInt(document.getElementById("horseCount").value) || 3;
+        updateTrackHeight(horseCount);
+      }
+    });
+  </script>
+</body>
+</html>
