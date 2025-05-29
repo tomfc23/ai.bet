@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI.BET</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+      font-size: 36px;
+      margin-bottom: 40px;
+    }
+    
+    .games-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    
+    .game-card {
+      background-color: #1e1e1e;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .game-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .game-image {
+      height: 200px;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+    
+    .mines-image {
+      background-color: #2a2a2a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 64px;
+    }
+    
+    .blackjack-image {
+      background-color: #004d00;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 64px;
+    }
+    
+    .game-info {
+      padding: 20px;
+    }
+    
+    .game-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #4CAF50;
+    }
+    
+    .game-description {
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    
+    .play-button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    
+    .play-button:hover {
+      background-color: #45a049;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+      color: #888;
+    }
+    
+    @media (max-width: 700px) {
+      .games-container {
+        grid-template-columns: 1fr;
+      }
+    }
+   button {
+  cursor: pointer;
+  background: rgba(76, 175, 80, 0.15);
+  color: #e0e0e0;
+  border: 2px solid #4CAF50;
+  margin: 10px;
+  padding: 20px 30px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 20px;
+  width: 300px;
+  height: 150px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 255, 128, 0.2);
+  transition: all 0.3s ease;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+button:hover {
+  background: rgba(76, 175, 80, 0.3);
+  box-shadow: 0 6px 25px rgba(0, 255, 128, 0.4);
+  border-color: #69f0ae;
+  transform: translateY(-5px);
+}
+
+button:focus {
+  outline: none;
+  border-color: #81c784;
+}
+
+    
+  </style>
+</head>
+<body>
+  <h1>AI.BET</h1>
+  
+<button class="home-buttons" type="button" onclick="window.location.href='blackjack.html'">
+  ♥️♣️BLACKJACK♣️♥️
+  </button>
+  <button class="home-buttons" type="button" onclick="window.location.href='plinko.html'">
+  ⚾PLINKO⚾
+  </button>
+  <button class="home-buttons" type="button" onclick="window.location.href='mines.html'">
+ 💣MINES💣
+  </button>
+  <button class="home-buttons" type="button" onclick="window.location.href='roulette.html'">
+ 🛞ROULETTE🛞
+  </button>
+  <button class="home-buttons" type="button" onclick="window.location.href='baccarat.html'">
+ 🪙BACCARAT🪙
+  </button>
+<button class="home-buttons" type="button" onclick="window.location.href='horse.html'">
+ 🏇HORSE RACING🏇
+  </button>
+  <button class="home-buttons" type="button" onclick="window.location.href='chicken.html'">
+ 🐔CHICKEN CROSS🐔
+  </button>
+ 
+  <button class="home-buttons" type="button" onclick="window.location.href='slots.html'">
+ 🎰SLOTS🎰
+  </button>
+  
+  <button class="home-buttons" type="button" onclick="window.location.href='paigow.html'">
+ 🃏PAI GOW POKER🃏
+  </button>
+  <button class="home-buttons" type="button" onclick="window.location.href='plane.html'">
+ ✈️AVIAMASTER✈️
+  </button>
+  <button class="home-buttons" type="button" onclick="window.location.href='keno.html'">
+ 💎KENO💎
+  </button>
+  <button class="home-buttons" type="button" onclick="window.location.href='dice.html'">
+ 🎲DICE🎲
+  </button>
+</body>
+</html>
